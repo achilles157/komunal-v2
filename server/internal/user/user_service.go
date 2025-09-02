@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -30,7 +31,7 @@ func (s *UserService) RegisterUser(fullName, username, email, password string) (
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 3. Membuat objek User baru
 	newUser := &User{
 		FullName:     fullName,
