@@ -14,8 +14,8 @@ import (
 
 func main() {
 	// 1. Muat environment variables dari file .env
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
+	if err := godotenv.Load("../.env"); err != nil { // Tambahkan path ke .env
+		log.Println("No .env file found, ensure it is in the project root")
 	}
 
 	// 2. Inisialisasi koneksi database
