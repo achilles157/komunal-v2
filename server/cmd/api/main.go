@@ -7,6 +7,7 @@ import (
 
 	"komunal/server/internal/auth"
 	"komunal/server/internal/database" // Ganti 'komunal' dengan nama modul go Anda
+	"komunal/server/internal/post"
 	"komunal/server/internal/server"
 	"komunal/server/internal/user"
 
@@ -35,13 +36,19 @@ func main() {
 	authService := auth.NewAuthService(userRepo)
 	authHandler := auth.NewAuthHandler(authService) // Kita akan buat ini
 
+	// Tambahkan inisialisasi untuk Post
+	postRepo := post.NewPostRepository(db)
+	postService := post.NewPostService(postRepo)
+	postHandler := post.NewPostHandler(postService)
+
 	// 4. Inisialisasi server
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080" // Port default jika tidak diset
 	}
 
-	srv := server.NewServer(port, userHandler, authHandler) // Kirim handler ke server
+	// Kirim semua handler ke server
+	srv := server.NewServer(port, userHandler, authHandler, postHandler)
 
 	// 5. Jalankan server
 	log.Printf("Server starting on port %s\n", port)

@@ -10,6 +10,43 @@ type UserRepository struct {
 	db *sql.DB
 }
 
+// FindByUsername mencari user berdasarkan username unik mereka
+func (r *UserRepository) FindByUsername(username string) (*User, error) {
+	query := `
+		SELECT id, full_name, username, email, profile_picture_url, bio, created_at, updated_at 
+		FROM users WHERE username = $1`
+
+	var user User
+	// Gunakan sql.NullString untuk field yang bisa NULL di database
+	var profilePic sql.NullString
+	var bio sql.NullString
+
+	err := r.db.QueryRow(query, username).Scan(
+		&user.ID,
+		&user.FullName,
+		&user.Username,
+		&user.Email,
+		&profilePic,
+		&bio,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err // Akan mengembalikan sql.ErrNoRows jika tidak ditemukan
+	}
+
+	// Set nilai dari NullString ke struct User jika valid
+	if profilePic.Valid {
+		user.ProfilePictureURL = profilePic.String
+	}
+	if bio.Valid {
+		user.Bio = bio.String
+	}
+
+	return &user, nil
+}
+
 // FindByEmail mencari user berdasarkan alamat email
 func (r *UserRepository) FindByEmail(email string) (*User, error) {
 	query := `

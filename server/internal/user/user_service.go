@@ -16,6 +16,27 @@ func NewUserService(repo *UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
+// GetUserProfile mengambil data profil publik seorang pengguna
+func (s *UserService) GetUserProfile(username string) (*UserProfileResponse, error) {
+	user, err := s.repo.FindByUsername(username)
+	if err != nil {
+		// Bisa jadi user tidak ditemukan atau error database
+		return nil, err
+	}
+
+	// Petakan data dari model User ke UserProfileResponse yang aman
+	response := &UserProfileResponse{
+		ID:                user.ID,
+		FullName:          user.FullName,
+		Username:          user.Username,
+		ProfilePictureURL: user.ProfilePictureURL,
+		Bio:               user.Bio,
+		JoinedAt:          user.CreatedAt,
+	}
+
+	return response, nil
+}
+
 // RegisterUser memvalidasi data, melakukan hash password, dan mendaftarkan user baru
 func (s *UserService) RegisterUser(fullName, username, email, password string) (*User, error) {
 	// 1. Validasi input (contoh sederhana)

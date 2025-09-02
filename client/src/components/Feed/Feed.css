@@ -1,0 +1,132 @@
+/* Styling untuk Card umum */
+.card {
+  background-color: #ffffff;
+  border: 1px solid #dbdbdb;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1rem;
+}
+
+/* CreatePost.jsx Styling */
+.create-post-header {
+  display: flex;
+  align-items: flex-start;
+}
+
+.post-input {
+  width: 100%;
+  border: none;
+  background-color: #f7f7f7;
+  border-radius: 20px;
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: none;
+  min-height: 24px;
+  max-height: 200px;
+}
+
+.post-input:focus {
+  outline: 1px solid #ccc;
+}
+
+.create-post-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.post-button {
+  border: none;
+  background-color: #000;
+  color: #fff;
+  padding: 0.6rem 1.5rem;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.post-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.post-button:not(:disabled):hover {
+  background-color: #333;
+}
+
+/* PostCard.jsx Styling */
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.post-author-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.author-name {
+  font-weight: 600;
+}
+
+.post-timestamp {
+  font-size: 0.8rem;
+  color: #8e8e8e;
+}
+
+.post-options {
+  margin-left: auto;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.post-content p {
+  margin-top: 0;
+  line-height: 1.5;
+}
+
+.post-media {
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid #efefef;
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #555;
+  font-weight: 500;
+  width: 100%;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.action-button:hover {
+  background-color: #f7f7f7;
+}

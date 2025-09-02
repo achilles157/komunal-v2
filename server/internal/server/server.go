@@ -7,6 +7,7 @@ import (
 
 	"komunal/server/internal/auth"
 	"komunal/server/internal/middleware"
+	"komunal/server/internal/post"
 	"komunal/server/internal/user"
 )
 
@@ -16,17 +17,24 @@ type Server struct {
 }
 
 // NewServer membuat dan mengkonfigurasi server baru
-func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.AuthHandler) *Server {
+func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.AuthHandler, postHandler *post.PostHandler) *Server {
 	mux := http.NewServeMux()
 
-	// --- Public Routes (tidak perlu login) ---
+	// --- Rute Publik ---
 	mux.HandleFunc("/api/register", userHandler.Register)
 	mux.HandleFunc("/api/login", authHandler.Login)
+	mux.HandleFunc("/api/posts", postHandler.GetPostsHandler)
 
-	// --- Protected Routes (harus login) ---
-	// Buat handler untuk profil sebagai contoh
+	// ROUTE UNTUK PROFIL PENGGUNA
+	mux.HandleFunc("GET /api/users/{username}", userHandler.GetUserProfileHandler)
+
+	// ROUTE UNTUK POSTINGAN PENGGUNA
+	mux.HandleFunc("GET /api/users/{username}/posts", postHandler.GetPostsByUsernameHandler)
+
+	// --- Rute Terproteksi ---
+
+	// Definisikan handler untuk profil
 	profileHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Ambil data user dari context yang sudah diisi oleh middleware
 		userID := r.Context().Value("userID").(int64)
 		username := r.Context().Value("username").(string)
 
@@ -40,6 +48,9 @@ func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.Aut
 
 	// Terapkan middleware ke profileHandler
 	mux.Handle("/api/profile", middleware.JWTAuthentication(profileHandler))
+
+	// Terapkan middleware ke handler pembuatan post
+	mux.Handle("/api/posts/create", middleware.JWTAuthentication(http.HandlerFunc(postHandler.CreatePostHandler)))
 
 	return &Server{
 		server: &http.Server{
