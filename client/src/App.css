@@ -1,0 +1,32 @@
+/* Reset CSS dasar */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #fafafa;
+}
+
+.app-content {
+  padding-top: 60px; /* Memberi ruang untuk fixed navbar */
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 2fr 5fr 3fr; /* Proporsi 3 kolom */
+  gap: 2rem; /* Jarak antar kolom */
+  padding: 2rem;
+}
+
+/* Placeholder styling untuk area konten */
+.left-sidebar, .feed, .right-sidebar {
+  background-color: #ffffff;
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
+  padding: 1rem;
+  min-height: 400px; /* Hanya untuk demo */
+}
