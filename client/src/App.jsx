@@ -1,29 +1,25 @@
 import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/UI/Navbar/Navbar';
+import HomePage from './pages/HomePage'; // Buat file ini jika belum ada
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import './App.css';
-
-// Placeholder untuk konten halaman
-const HomePage = () => {
-    // Di sini nanti kita akan meletakkan komponen-komponen lain
-    // seperti LeftSidebar, Feed, dan RightSidebar
-    return (
-        <div className="main-content">
-            <div className="left-sidebar">Left Sidebar</div>
-            <div className="feed">Feed Area</div>
-            <div className="right-sidebar">Right Sidebar</div>
-        </div>
-    );
-}
-
 
 function App() {
   return (
-    <div className="App">
-      <Navbar />
-      <main className="app-content">
-        <HomePage />
-      </main>
-    </div>
+    <BrowserRouter>
+      <div className="App">
+        <Navbar />
+        <main className="app-content">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+          </Routes>
+        </main>
+      </div>
+    </BrowserRouter>
   );
 }
 

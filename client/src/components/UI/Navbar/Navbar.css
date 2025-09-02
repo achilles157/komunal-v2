@@ -70,3 +70,29 @@
 .navbar-search input::placeholder {
   color: #8e8e8e;
 }
+
+.navbar-user-section {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.welcome-message {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.logout-button {
+  border: none;
+  background-color: #000;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+  background-color: #333;
+}

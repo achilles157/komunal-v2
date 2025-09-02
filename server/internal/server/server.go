@@ -1,10 +1,13 @@
 package server
 
 import (
+	"encoding/json"
 	"net/http"
 	"time"
 
-	"komunal/server/internal/user" // Ganti 'komunal' dengan nama modul go Anda
+	"komunal/server/internal/auth"
+	"komunal/server/internal/middleware"
+	"komunal/server/internal/user"
 )
 
 // Server adalah struct untuk server HTTP kita
@@ -13,12 +16,30 @@ type Server struct {
 }
 
 // NewServer membuat dan mengkonfigurasi server baru
-func NewServer(port string, userHandler *user.UserHandler) *Server {
-
-	// Daftarkan semua rute/endpoint di sini
+func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.AuthHandler) *Server {
 	mux := http.NewServeMux()
+
+	// --- Public Routes (tidak perlu login) ---
 	mux.HandleFunc("/api/register", userHandler.Register)
-	// mux.HandleFunc("/api/login", userHandler.Login) // Nanti ditambahkan
+	mux.HandleFunc("/api/login", authHandler.Login)
+
+	// --- Protected Routes (harus login) ---
+	// Buat handler untuk profil sebagai contoh
+	profileHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Ambil data user dari context yang sudah diisi oleh middleware
+		userID := r.Context().Value("userID").(int64)
+		username := r.Context().Value("username").(string)
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message":  "Welcome to your profile!",
+			"userId":   userID,
+			"username": username,
+		})
+	})
+
+	// Terapkan middleware ke profileHandler
+	mux.Handle("/api/profile", middleware.JWTAuthentication(profileHandler))
 
 	return &Server{
 		server: &http.Server{

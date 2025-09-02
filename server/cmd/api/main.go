@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"komunal/server/internal/auth"
 	"komunal/server/internal/database" // Ganti 'komunal' dengan nama modul go Anda
 	"komunal/server/internal/server"
 	"komunal/server/internal/user"
@@ -25,10 +26,14 @@ func main() {
 	}
 	defer db.Close()
 
-	// 3. Inisialisasi dan hubungkan semua lapisan (dependency injection)
+	// 3. Inisialisasi dan hubungkan semua lapisan
 	userRepo := user.NewUserRepository(db)
 	userService := user.NewUserService(userRepo)
 	userHandler := user.NewUserHandler(userService)
+
+	// Tambahkan inisialisasi untuk auth
+	authService := auth.NewAuthService(userRepo)
+	authHandler := auth.NewAuthHandler(authService) // Kita akan buat ini
 
 	// 4. Inisialisasi server
 	port := os.Getenv("PORT")
@@ -36,7 +41,7 @@ func main() {
 		port = "8080" // Port default jika tidak diset
 	}
 
-	srv := server.NewServer(port, userHandler) // Kirim handler ke server
+	srv := server.NewServer(port, userHandler, authHandler) // Kirim handler ke server
 
 	// 5. Jalankan server
 	log.Printf("Server starting on port %s\n", port)
