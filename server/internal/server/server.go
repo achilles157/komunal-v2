@@ -38,6 +38,12 @@ func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.Aut
 	// ROUTE UNTUK MEMBUAT KOMUNITAS (TERPROTEKSI)
 	mux.Handle("POST /api/communities", middleware.JWTAuthentication(http.HandlerFunc(communityHandler.CreateCommunityHandler)))
 
+	mux.Handle("POST /api/users/{username}/follow", middleware.JWTAuthentication(http.HandlerFunc(userHandler.FollowUserHandler)))
+
+	// ROUTE UNTUK LIKE & UNLIKE (TERPROTEKSI)
+	mux.Handle("POST /api/posts/{postId}/like", middleware.JWTAuthentication(http.HandlerFunc(postHandler.LikePostHandler)))
+	mux.Handle("DELETE /api/posts/{postId}/like", middleware.JWTAuthentication(http.HandlerFunc(postHandler.UnlikePostHandler)))
+
 	// --- Rute Terproteksi ---
 
 	// Definisikan handler untuk profil

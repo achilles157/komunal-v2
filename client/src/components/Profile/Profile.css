@@ -137,6 +137,16 @@
   background-color: #333;
 }
 
+.profile-header-actions .action-button.secondary {
+  background-color: #efefef;
+  color: #262626;
+  border-color: #dbdbdb;
+}
+
+.profile-header-actions .action-button.secondary:hover {
+  background-color: #dbdbdb;
+}
+
 /* ProfileNav.jsx Styling */
 .profile-nav {
   display: flex;
@@ -229,4 +239,40 @@
 }
 .create-community-button:hover {
   background-color: #333;
+}
+
+/* -- Responsive Styles for Profile Page -- */
+@media (max-width: 768px) {
+  .profile-header-info {
+    /* Ubah arah flex menjadi vertikal */
+    flex-direction: column;
+    /* Pusatkan item di tengah */
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-header-avatar {
+    width: 100px;
+    height: 100px;
+    margin-right: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .profile-header-details {
+    /* Hapus flex-grow dan pusatkan teks */
+    flex-grow: 0;
+    text-align: center;
+    align-items: center; /* Pusatkan item di dalamnya (seperti tombol) */
+  }
+
+  .profile-stats {
+    /* Pusatkan statistik */
+    justify-content: center;
+  }
+
+  .profile-nav {
+    /* Biarkan tab bisa di-scroll jika tidak muat */
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
 }

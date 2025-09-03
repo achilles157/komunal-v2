@@ -66,3 +66,37 @@ export const createCommunity = async (communityData, token) => {
   });
   return handleResponse(response);
 };
+
+// --- Social Interaction Services ---
+
+export const followUser = async (username, token) => {
+  const response = await fetch(`${BASE_URL}/users/${username}/follow`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};
+
+export const unfollowUser = async (username, token) => {
+  const response = await fetch(`${BASE_URL}/users/${username}/follow`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};
+
+export const likePost = async (postId, token) => {
+  const response = await fetch(`${BASE_URL}/posts/${postId}/like`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};
+
+export const unlikePost = async (postId, token) => {
+  const response = await fetch(`${BASE_URL}/posts/${postId}/like`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};

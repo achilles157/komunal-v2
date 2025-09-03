@@ -24,16 +24,22 @@ func NewUserHandler(service *UserService) *UserHandler {
 
 // GetUserProfileHandler menangani request untuk mendapatkan profil user
 func (h *UserHandler) GetUserProfileHandler(w http.ResponseWriter, r *http.Request) {
-	// Ambil username dari URL, contoh: /api/users/johndoe
 	username := r.PathValue("username")
 	if username == "" {
 		http.Error(w, "Username is required", http.StatusBadRequest)
 		return
 	}
 
-	userProfile, err := h.service.GetUserProfile(username)
+	// Coba ambil ID pengguna yang sedang login dari context.
+	// Jika tidak ada (pengguna tamu), userID akan menjadi 0.
+	var currentUserID int64 = 0
+	if userID, ok := r.Context().Value("userID").(int64); ok {
+		currentUserID = userID
+	}
+
+	// Panggil service dengan dua argumen
+	userProfile, err := h.service.GetUserProfile(username, currentUserID)
 	if err != nil {
-		// Jika user tidak ditemukan, kirim status 404
 		if err.Error() == "sql: no rows in result set" {
 			http.Error(w, "User not found", http.StatusNotFound)
 		} else {
@@ -93,3 +99,25 @@ func (h *UserHandler) UpdateUserProfileHandler(w http.ResponseWriter, r *http.Re
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(updatedUser)
 }
+
+// FollowUserHandler menangani permintaan untuk mengikuti user
+func (h *UserHandler) FollowUserHandler(w http.ResponseWriter, r *http.Request) {
+	currentUserID := r.Context().Value("userID").(int64)
+	targetUsername := r.PathValue("username")
+
+	// Dapatkan ID user yang akan di-follow
+	targetUser, err := h.service.GetUserProfile(targetUsername, 0) // currentUserID bisa 0 karena tidak relevan di sini
+	if err != nil {
+		http.Error(w, "User to follow not found", http.StatusNotFound)
+		return
+	}
+
+	if err := h.service.FollowUser(currentUserID, targetUser.ID); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+// UnfollowUserHandler menangani permintaan untuk berhenti mengikuti user
+// (Mirip dengan FollowUserHandler, tetapi memanggil service.UnfollowUser)

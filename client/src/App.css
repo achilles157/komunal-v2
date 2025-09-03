@@ -73,3 +73,29 @@ body {
 .read-the-docs {
   color: #888;
 }
+
+/* -- Responsive Styles -- */
+/* Terapkan style ini jika lebar layar 768px atau kurang */
+@media (max-width: 768px) {
+  .main-content {
+    /* Ubah dari 3 kolom menjadi 1 kolom */
+    grid-template-columns: 1fr;
+    padding: 1rem; /* Kurangi padding di mobile */
+    gap: 1.5rem;
+  }
+
+  /* Sembunyikan sidebar kanan di mobile untuk fokus pada konten utama */
+  /* Nanti bisa dibuat toggle dengan hamburger menu */
+  .right-sidebar-container {
+    display: none;
+  }
+
+  /* Pastikan sidebar kiri mengambil lebar penuh */
+  .left-sidebar-container {
+    order: 2; /* Pindahkan sidebar kiri ke bawah feed */
+  }
+
+  .feed {
+    order: 1; /* Pastikan feed selalu di atas */
+  }
+}

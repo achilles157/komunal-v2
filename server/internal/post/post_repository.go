@@ -91,3 +91,15 @@ func (r *PostRepository) FindByUsername(username string) ([]PostResponse, error)
 
 	return posts, nil
 }
+
+func (r *PostRepository) LikePost(userID, postID int64) error {
+	query := `INSERT INTO post_likes (user_id, post_id) VALUES ($1, $2)`
+	_, err := r.db.Exec(query, userID, postID)
+	return err
+}
+
+func (r *PostRepository) UnlikePost(userID, postID int64) error {
+	query := `DELETE FROM post_likes WHERE user_id = $1 AND post_id = $2`
+	_, err := r.db.Exec(query, userID, postID)
+	return err
+}

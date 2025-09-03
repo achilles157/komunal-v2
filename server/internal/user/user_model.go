@@ -31,4 +31,5 @@ type UserProfileResponse struct {
 	Bio               string    `json:"bio,omitempty"`
 	JoinedAt          time.Time `json:"joinedAt"`
 	Stats             UserStats `json:"stats"` // Tambahkan statistik di sini
+	IsFollowing       bool      `json:"isFollowing"`
 }

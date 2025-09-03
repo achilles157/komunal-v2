@@ -17,7 +17,7 @@ func NewUserService(repo *UserRepository) *UserService {
 }
 
 // GetUserProfile mengambil data profil publik seorang pengguna
-func (s *UserService) GetUserProfile(username string) (*UserProfileResponse, error) {
+func (s *UserService) GetUserProfile(username string, currentUserID int64) (*UserProfileResponse, error) {
 	user, err := s.repo.FindByUsername(username)
 	if err != nil {
 		return nil, err
@@ -29,6 +29,10 @@ func (s *UserService) GetUserProfile(username string) (*UserProfileResponse, err
 		return nil, err
 	}
 
+	isFollowing, err := s.repo.IsFollowing(currentUserID, user.ID)
+	if err != nil {
+		return nil, err
+	}
 	// Petakan data ke UserProfileResponse
 	response := &UserProfileResponse{
 		ID:                user.ID,
@@ -38,6 +42,7 @@ func (s *UserService) GetUserProfile(username string) (*UserProfileResponse, err
 		Bio:               user.Bio,
 		JoinedAt:          user.CreatedAt,
 		Stats:             *stats, // Tambahkan statistik ke response
+		IsFollowing:       isFollowing,
 	}
 
 	return response, nil
@@ -111,4 +116,16 @@ func (s *UserService) UpdateUserProfile(userID int64, payload UpdateProfilePaylo
 	}
 
 	return userToUpdate, nil
+}
+
+func (s *UserService) FollowUser(followerID, followingID int64) error {
+	if followerID == followingID {
+		return errors.New("users cannot follow themselves")
+	}
+	// TODO: Cek apakah user yang akan di-follow ada
+	return s.repo.Follow(followerID, followingID)
+}
+
+func (s *UserService) UnfollowUser(followerID, followingID int64) error {
+	return s.repo.Unfollow(followerID, followingID)
 }

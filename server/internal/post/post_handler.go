@@ -3,6 +3,7 @@ package post
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 type CreatePostPayload struct {
@@ -72,4 +73,41 @@ func (h *PostHandler) GetPostsByUsernameHandler(w http.ResponseWriter, r *http.R
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(posts)
+}
+
+func (h *PostHandler) LikePostHandler(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("userID").(int64)
+
+	postIDStr := r.PathValue("postId")
+	postID, err := strconv.ParseInt(postIDStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.service.LikePost(userID, postID); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+// UnlikePostHandler menangani permintaan untuk batal menyukai sebuah postingan
+func (h *PostHandler) UnlikePostHandler(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("userID").(int64)
+
+	postIDStr := r.PathValue("postId")
+	postID, err := strconv.ParseInt(postIDStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.service.UnlikePost(userID, postID); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

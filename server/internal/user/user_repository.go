@@ -137,3 +137,25 @@ func (r *UserRepository) Update(user *User) error {
 	_, err := r.db.Exec(query, user.FullName, user.ProfilePictureURL, user.Bio, user.ID)
 	return err
 }
+
+// Follow menambahkan relasi 'mengikuti' ke database
+func (r *UserRepository) Follow(followerID, followingID int64) error {
+	query := `INSERT INTO followers (follower_id, following_id) VALUES ($1, $2)`
+	_, err := r.db.Exec(query, followerID, followingID)
+	return err
+}
+
+// Unfollow menghapus relasi 'mengikuti' dari database
+func (r *UserRepository) Unfollow(followerID, followingID int64) error {
+	query := `DELETE FROM followers WHERE follower_id = $1 AND following_id = $2`
+	_, err := r.db.Exec(query, followerID, followingID)
+	return err
+}
+
+// IsFollowing memeriksa apakah seorang pengguna sudah mengikuti pengguna lain
+func (r *UserRepository) IsFollowing(followerID, followingID int64) (bool, error) {
+	var exists bool
+	query := `SELECT EXISTS(SELECT 1 FROM followers WHERE follower_id = $1 AND following_id = $2)`
+	err := r.db.QueryRow(query, followerID, followingID).Scan(&exists)
+	return exists, err
+}

@@ -130,3 +130,12 @@
 .action-button:hover {
   background-color: #f7f7f7;
 }
+
+.action-button.liked {
+  color: #ed4956; /* Warna merah untuk like */
+  font-weight: 700;
+}
+
+.action-button.liked svg {
+    fill: #ed4956;
+}

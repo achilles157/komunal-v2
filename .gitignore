@@ -1,6 +1,7 @@
 # Umum
 .DS_Store
 Thumbs.db
+.env
 
 # Node.js (client)
 client/node_modules/

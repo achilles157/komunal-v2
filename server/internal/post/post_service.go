@@ -34,3 +34,16 @@ func (s *PostService) GetFeedPosts() ([]PostResponse, error) {
 func (s *PostService) GetPostsByUsername(username string) ([]PostResponse, error) {
 	return s.repo.FindByUsername(username)
 }
+
+// LikePost menangani logika untuk menyukai sebuah postingan
+func (s *PostService) LikePost(userID int64, postID int64) error {
+	// Di sini Anda bisa menambahkan validasi, misalnya:
+	// - Cek apakah postingan dengan ID tersebut ada
+	// - Cek apakah pengguna sudah pernah menyukai postingan ini sebelumnya
+	return s.repo.LikePost(userID, postID)
+}
+
+// UnlikePost menangani logika untuk batal menyukai sebuah postingan
+func (s *PostService) UnlikePost(userID int64, postID int64) error {
+	return s.repo.UnlikePost(userID, postID)
+}
