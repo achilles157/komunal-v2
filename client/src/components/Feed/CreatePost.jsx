@@ -9,7 +9,7 @@ const CreatePost = ({ onPostCreated }) => { // Terima prop onPostCreated
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     return null;
   }
 
@@ -17,15 +17,11 @@ const CreatePost = ({ onPostCreated }) => { // Terima prop onPostCreated
     setIsLoading(true);
     setError('');
     try {
-      // Panggil API untuk membuat post baru
       await createPost({ content: postContent, mediaUrl: '' }, token);
-      setPostContent(''); // Kosongkan input
-      
-      // Panggil fungsi callback dari parent untuk me-refresh feed
+      setPostContent('');
       if (onPostCreated) {
         onPostCreated();
       }
-
     } catch (err) {
       setError(err.message);
     } finally {

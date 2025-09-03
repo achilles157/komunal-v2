@@ -20,11 +20,16 @@ func NewUserService(repo *UserRepository) *UserService {
 func (s *UserService) GetUserProfile(username string) (*UserProfileResponse, error) {
 	user, err := s.repo.FindByUsername(username)
 	if err != nil {
-		// Bisa jadi user tidak ditemukan atau error database
 		return nil, err
 	}
 
-	// Petakan data dari model User ke UserProfileResponse yang aman
+	// Panggil fungsi baru untuk mendapatkan statistik
+	stats, err := s.repo.GetStatsByUserID(user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Petakan data ke UserProfileResponse
 	response := &UserProfileResponse{
 		ID:                user.ID,
 		FullName:          user.FullName,
@@ -32,6 +37,7 @@ func (s *UserService) GetUserProfile(username string) (*UserProfileResponse, err
 		ProfilePictureURL: user.ProfilePictureURL,
 		Bio:               user.Bio,
 		JoinedAt:          user.CreatedAt,
+		Stats:             *stats, // Tambahkan statistik ke response
 	}
 
 	return response, nil
@@ -72,4 +78,37 @@ func (s *UserService) RegisterUser(fullName, username, email, password string) (
 	newUser.PasswordHash = ""
 
 	return newUser, nil
+}
+
+// UpdateProfilePayload adalah data yang kita harapkan dari client untuk update
+type UpdateProfilePayload struct {
+	FullName          string
+	ProfilePictureURL string
+	Bio               string
+}
+
+// UpdateUserProfile memvalidasi dan memperbarui profil pengguna
+func (s *UserService) UpdateUserProfile(userID int64, payload UpdateProfilePayload) (*User, error) {
+	// 1. Ambil data user saat ini
+	//    Kita bisa membuat fungsi GetByID di repository jika perlu, tapi untuk sekarang kita bisa skip
+
+	// 2. Validasi sederhana
+	if payload.FullName == "" {
+		return nil, errors.New("full name cannot be empty")
+	}
+
+	// 3. Buat objek User untuk diupdate
+	userToUpdate := &User{
+		ID:                userID,
+		FullName:          payload.FullName,
+		ProfilePictureURL: payload.ProfilePictureURL,
+		Bio:               payload.Bio,
+	}
+
+	// 4. Panggil repository untuk menyimpan perubahan
+	if err := s.repo.Update(userToUpdate); err != nil {
+		return nil, err
+	}
+
+	return userToUpdate, nil
 }

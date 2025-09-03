@@ -40,3 +40,29 @@ export const getPostsByUsername = async (username) => {
   const response = await fetch(`${BASE_URL}/users/${username}/posts`);
   return handleResponse(response);
 };
+
+// Service untuk memperbarui profil pengguna
+export const updateUserProfile = async (profileData, token) => {
+  const response = await fetch(`${BASE_URL}/profile`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(profileData),
+  });
+  return handleResponse(response);
+};
+
+// Service untuk membuat komunitas baru
+export const createCommunity = async (communityData, token) => {
+  const response = await fetch(`${BASE_URL}/communities`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(communityData),
+  });
+  return handleResponse(response);
+};

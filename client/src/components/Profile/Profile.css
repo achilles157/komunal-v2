@@ -93,6 +93,10 @@
 
 .profile-header-details {
   flex-grow: 1;
+  text-align: left; /* Pastikan teks rata kiri */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Pusatkan item secara vertikal jika ada ruang lebih */
 }
 
 .profile-header-fullname {
@@ -112,20 +116,117 @@
 }
 
 .profile-header-actions {
-  margin-left: 2rem;
+  margin-top: 1.5rem; /* Beri jarak dari bio di atasnya */
+  align-self: flex-start; 
 }
 
 .profile-header-actions .action-button {
   padding: 0.6rem 1.5rem;
-  border-radius: 20px;
+  border-radius: 8px; /* Ubah agar lebih konsisten dengan tombol lain */
   font-weight: 600;
   cursor: pointer;
   border: 1px solid #000;
   background-color: #000;
   color: #fff;
   transition: all 0.2s;
+  text-decoration: none; /* Menghapus garis bawah dari link */
+  display: inline-block;  /* INI PERBAIKANNYA */
 }
 
 .profile-header-actions .action-button:hover {
+  background-color: #333;
+}
+
+/* ProfileNav.jsx Styling */
+.profile-nav {
+  display: flex;
+  border-bottom: 1px solid #dbdbdb;
+  margin-bottom: 2rem;
+}
+
+.nav-tab {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #8e8e8e;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.nav-tab:hover {
+  color: #262626;
+}
+
+.nav-tab.active {
+  color: #262626;
+}
+
+.nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #262626;
+}
+
+/* Styling untuk judul konten di bawah tab */
+.content-title {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+/* Statistik Styling */
+.profile-stats {
+  display: flex;
+  gap: 2rem;
+  margin: 1.5rem 0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.stat-item strong {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.stat-item span {
+  font-size: 0.9rem;
+  color: #8e8e8e;
+}
+
+/* Sedikit penyesuaian pada bio */
+.profile-header-bio {
+  color: #333;
+  line-height: 1.6;
+  margin-top: 0; /* Hapus margin atas agar lebih rapi dengan statistik */
+}
+
+.create-community-button {
+  display: block;
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1.5rem;
+  border: none;
+  border-radius: 8px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  background-color: #000;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.create-community-button:hover {
   background-color: #333;
 }

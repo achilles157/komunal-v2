@@ -15,6 +15,13 @@ type User struct {
 	UpdatedAt         time.Time `json:"updatedAt"`
 }
 
+// UserStats menampung data statistik seorang pengguna
+type UserStats struct {
+	PostCount      int `json:"postCount"`
+	FollowerCount  int `json:"followerCount"`
+	FollowingCount int `json:"followingCount"`
+}
+
 // UserProfileResponse adalah data yang aman untuk ditampilkan ke publik
 type UserProfileResponse struct {
 	ID                int64     `json:"id"`
@@ -23,4 +30,5 @@ type UserProfileResponse struct {
 	ProfilePictureURL string    `json:"profilePictureUrl,omitempty"`
 	Bio               string    `json:"bio,omitempty"`
 	JoinedAt          time.Time `json:"joinedAt"`
+	Stats             UserStats `json:"stats"` // Tambahkan statistik di sini
 }

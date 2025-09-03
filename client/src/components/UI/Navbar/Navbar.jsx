@@ -13,8 +13,8 @@ const Navbar = () => {
           Komunal
         </Link>
 
-        {isAuthenticated ? (
-          // TAMPILAN JIKA SUDAH LOGIN
+        {isAuthenticated && user ? (
+          // TAMPILAN JIKA SUDAH LOGIN DAN DATA USER SUDAH SIAP
           <div className="navbar-user-section">
             <span className="welcome-message">
               Selamat datang, <strong>{user.username}</strong>
@@ -24,7 +24,7 @@ const Navbar = () => {
             </button>
           </div>
         ) : (
-          // TAMPILAN JIKA BELUM LOGIN (YANG DIPERBARUI)
+          // TAMPILAN JIKA BELUM LOGIN
           <div className="navbar-actions">
             <Link to="/login" className="navbar-action-button">
               Masuk

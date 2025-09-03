@@ -101,3 +101,39 @@ func (r *UserRepository) Create(user *User) error {
 
 	return nil
 }
+
+// GetStatsByUserID mengambil statistik (post, follower, following) untuk seorang user
+func (r *UserRepository) GetStatsByUserID(userID int64) (*UserStats, error) {
+	var stats UserStats
+
+	// Query untuk menghitung jumlah postingan
+	err := r.db.QueryRow(`SELECT COUNT(*) FROM posts WHERE user_id = $1`, userID).Scan(&stats.PostCount)
+	if err != nil {
+		return nil, err
+	}
+
+	// Query untuk menghitung jumlah pengikut (followers)
+	err = r.db.QueryRow(`SELECT COUNT(*) FROM followers WHERE following_id = $1`, userID).Scan(&stats.FollowerCount)
+	if err != nil {
+		return nil, err
+	}
+
+	// Query untuk menghitung jumlah yang diikuti (following)
+	err = r.db.QueryRow(`SELECT COUNT(*) FROM followers WHERE follower_id = $1`, userID).Scan(&stats.FollowingCount)
+	if err != nil {
+		return nil, err
+	}
+
+	return &stats, nil
+}
+
+// Update memperbarui data pengguna di database
+func (r *UserRepository) Update(user *User) error {
+	query := `
+		UPDATE users
+		SET full_name = $1, profile_picture_url = $2, bio = $3, updated_at = NOW()
+		WHERE id = $4`
+
+	_, err := r.db.Exec(query, user.FullName, user.ProfilePictureURL, user.Bio, user.ID)
+	return err
+}

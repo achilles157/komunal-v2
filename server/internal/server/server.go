@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"komunal/server/internal/auth"
+	"komunal/server/internal/community"
 	"komunal/server/internal/middleware"
 	"komunal/server/internal/post"
 	"komunal/server/internal/user"
@@ -17,7 +18,7 @@ type Server struct {
 }
 
 // NewServer membuat dan mengkonfigurasi server baru
-func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.AuthHandler, postHandler *post.PostHandler) *Server {
+func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.AuthHandler, postHandler *post.PostHandler, communityHandler *community.CommunityHandler) *Server {
 	mux := http.NewServeMux()
 
 	// --- Rute Publik ---
@@ -30,6 +31,12 @@ func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.Aut
 
 	// ROUTE UNTUK POSTINGAN PENGGUNA
 	mux.HandleFunc("GET /api/users/{username}/posts", postHandler.GetPostsByUsernameHandler)
+
+	// ROUTE UNTUK UPDATE PROFIL (TERPROTEKSI)
+	mux.Handle("PUT /api/profile", middleware.JWTAuthentication(http.HandlerFunc(userHandler.UpdateUserProfileHandler)))
+
+	// ROUTE UNTUK MEMBUAT KOMUNITAS (TERPROTEKSI)
+	mux.Handle("POST /api/communities", middleware.JWTAuthentication(http.HandlerFunc(communityHandler.CreateCommunityHandler)))
 
 	// --- Rute Terproteksi ---
 

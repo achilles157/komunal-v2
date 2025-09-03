@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom'; 
 import { useAuth } from '../../contexts/AuthContext';
 import { FiHome, FiCompass, FiShoppingBag } from 'react-icons/fi';
 import './Profile.css';
@@ -18,10 +18,16 @@ const LeftSidebar = () => {
           />
           <h3 className="profile-name">{user.fullName || user.username}</h3>
           <p className="profile-username">@{user.username}</p>
-          <NavLink to="/profile" className="view-profile-button">
+          <NavLink to={`/${user.username}`} className="view-profile-button">
             Lihat Profil
           </NavLink>
         </div>
+      )}
+
+      {isAuthenticated && (
+         <Link to="/new/community" className="create-community-button">
+            Buat Komunitas
+         </Link>
       )}
 
       <div className="card nav-card">

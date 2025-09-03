@@ -1,1 +1,44 @@
-.env
+# Umum
+.DS_Store
+Thumbs.db
+
+# Node.js (client)
+client/node_modules/
+client/dist/
+client/.env
+client/.env.local
+client/.vite/
+client/.eslintcache
+
+# Go (server)
+server/bin/
+server/.env
+server/coverage.out
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Log files
+*.log
+
+# MacOS
+__MAC_OSX/
+
+# Windows
+ehthumbs.db
+Desktop.ini

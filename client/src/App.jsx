@@ -1,28 +1,30 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom'; // Hapus import BrowserRouter
 import Navbar from './components/UI/Navbar/Navbar';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import ProfilePage from './pages/ProfilePage'; // Import halaman baru
+import ProfilePage from './pages/ProfilePage';
+import EditProfilePage from './pages/EditProfilePage'; 
+import CreateCommunityPage from './pages/CreateCommunityPage';
 import './App.css';
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="App">
-        <Navbar />
-        <main className="app-content">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            {/* ROUTE BARU UNTUK PROFIL */}
-            <Route path="/:username" element={<ProfilePage />} /> 
-          </Routes>
-        </main>
-      </div>
-    </BrowserRouter>
+    <div className="App">
+      <Navbar />
+      <main className="app-content">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/:username" element={<ProfilePage />} />
+          <Route path="/settings/profile" element={<EditProfilePage />} />
+          <Route path="/new/community" element={<CreateCommunityPage />} />
+          <Route path="/:username" element={<ProfilePage />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
 

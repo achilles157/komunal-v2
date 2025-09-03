@@ -68,3 +68,28 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(newUser) // Kirim data user baru (tanpa password)
 }
+
+// UpdateUserProfileHandler menangani permintaan untuk memperbarui profil
+func (h *UserHandler) UpdateUserProfileHandler(w http.ResponseWriter, r *http.Request) {
+	// Ambil userID dari context, ini memastikan hanya user yang login yang bisa edit
+	userID, ok := r.Context().Value("userID").(int64)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	var payload UpdateProfilePayload
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	updatedUser, err := h.service.UpdateUserProfile(userID, payload)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(updatedUser)
+}
