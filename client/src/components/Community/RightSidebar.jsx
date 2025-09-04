@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom'; // Import Link
 import './Community.css';
 
 const dummyCommunities = [
@@ -19,14 +20,14 @@ const RightSidebar = () => {
         <h3 className="suggestion-title">Komunitas untuk Anda</h3>
         <ul className="suggestion-list">
           {dummyCommunities.map(community => (
-            <li key={community.id} className="suggestion-item">
-              <img src={`https://api.dicebear.com/8.x/initials/svg?seed=${community.name}`} alt="Community Avatar" className="suggestion-avatar" />
+            // Ganti <li> dengan <Link>
+            <Link to={`/c/${community.name.replace(/\s+/g, '-')}`} key={community.id} className="suggestion-item as-link">
+              <img src={`https://api.dicebear.com/8.x/initials/svg?seed=${community.name}`} alt="Avatar" className="suggestion-avatar" />
               <div className="suggestion-info">
                 <span className="suggestion-name">{community.name}</span>
                 <span className="suggestion-meta">{community.members} anggota</span>
               </div>
-              <button className="follow-button">Gabung</button>
-            </li>
+            </Link>
           ))}
         </ul>
       </div>

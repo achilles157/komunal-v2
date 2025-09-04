@@ -25,6 +25,16 @@
   align-items: center;
 }
 
+.suggestion-item.as-link {
+  text-decoration: none;
+  color: inherit;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+.suggestion-item.as-link:hover {
+  background-color: #f9f9f9;
+}
+
 .suggestion-avatar {
   width: 40px;
   height: 40px;
@@ -63,4 +73,77 @@
 .follow-button:hover {
   background-color: #000;
   color: #fff;
+}
+
+/* Community Page Styling */
+.community-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.community-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
+}
+
+.community-info h2 {
+  margin: 0 0 0.5rem 0;
+}
+.community-info p {
+  margin: 0 0 0.5rem 0;
+  color: #555;
+}
+.community-info span {
+  font-weight: 600;
+}
+
+.join-button {
+  margin-left: auto;
+  padding: 0.6rem 1.5rem;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #000;
+  transition: all 0.2s;
+}
+.join-button.primary {
+  background-color: #000;
+  color: #fff;
+}
+.join-button.secondary {
+  background-color: #efefef;
+  color: #262626;
+  border-color: #dbdbdb;
+}
+
+.community-body {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #262626;
+  transition: background-color 0.2s;
+}
+.member-item:hover {
+  background-color: #f5f5f5;
+}
+.member-item img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+.member-item span {
+  font-weight: 500;
 }

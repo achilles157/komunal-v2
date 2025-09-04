@@ -100,3 +100,26 @@ export const unlikePost = async (postId, token) => {
   });
   return handleResponse(response);
 };
+
+// --- Community Services ---
+
+export const getCommunityDetails = async (name) => {
+  const response = await fetch(`${BASE_URL}/communities/${name}`);
+  return handleResponse(response);
+};
+
+export const joinCommunity = async (name, token) => {
+  const response = await fetch(`${BASE_URL}/communities/${name}/join`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};
+
+export const leaveCommunity = async (name, token) => {
+  const response = await fetch(`${BASE_URL}/communities/${name}/join`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};
