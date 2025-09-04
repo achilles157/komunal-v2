@@ -1,33 +1,25 @@
 # --- Tahap 1: Build ---
-# Menggunakan image Go resmi sebagai basis untuk build
 FROM golang:1.21-alpine AS builder
-
-# Menetapkan direktori kerja di dalam container
 WORKDIR /app
 
-# Menyalin file dependensi
-COPY go.mod ./
-COPY go.sum ./
-
-# Mengunduh semua dependensi
+# Salin dan unduh dependensi terlebih dahulu
+COPY go.mod go.sum ./
 RUN go mod download
 
-# Menyalin seluruh kode sumber proyek Anda
+# Salin sisa kode aplikasi
 COPY . .
 
-# Build aplikasi Go Anda. Outputnya adalah file binary bernama 'main'
-# Perhatikan path ke main.go Anda
+# Build aplikasi Go Anda menjadi satu file binary
 RUN CGO_ENABLED=0 GOOS=linux go build -o /main ./cmd/api
 
 # --- Tahap 2: Run ---
-# Menggunakan image minimalis untuk menjalankan aplikasi (lebih aman dan kecil)
 FROM alpine:latest
 
-# Menyalin file binary 'main' yang sudah di-build dari tahap sebelumnya
+# Salin file binary yang sudah di-build dari tahap sebelumnya
 COPY --from=builder /main /main
 
-# Memberi tahu container port mana yang akan diekspos
+# Expose port yang digunakan oleh aplikasi Go Anda
 EXPOSE 8080
 
-# Perintah untuk menjalankan aplikasi saat container dimulai
+# Perintah untuk menjalankan aplikasi
 CMD ["/main"]
