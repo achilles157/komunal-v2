@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type CreatePostPayload struct {
@@ -59,7 +61,8 @@ func (h *PostHandler) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 
 // GetPostsByUsernameHandler menangani pengambilan postingan milik seorang user
 func (h *PostHandler) GetPostsByUsernameHandler(w http.ResponseWriter, r *http.Request) {
-	username := r.PathValue("username")
+	vars := mux.Vars(r)
+	username := vars["username"]
 	if username == "" {
 		http.Error(w, "Username is required", http.StatusBadRequest)
 		return
@@ -77,8 +80,8 @@ func (h *PostHandler) GetPostsByUsernameHandler(w http.ResponseWriter, r *http.R
 
 func (h *PostHandler) LikePostHandler(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("userID").(int64)
-
-	postIDStr := r.PathValue("postId")
+	vars := mux.Vars(r)
+	postIDStr := vars["postId"]
 	postID, err := strconv.ParseInt(postIDStr, 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
@@ -99,8 +102,8 @@ func (h *PostHandler) LikePostHandler(w http.ResponseWriter, r *http.Request) {
 // UnlikePostHandler menangani permintaan untuk batal menyukai sebuah postingan
 func (h *PostHandler) UnlikePostHandler(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("userID").(int64)
-
-	postIDStr := r.PathValue("postId")
+	vars := mux.Vars(r)
+	postIDStr := vars["postId"]
 	postID, err := strconv.ParseInt(postIDStr, 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)

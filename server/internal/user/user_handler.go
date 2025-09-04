@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux" //
 )
 
 // RegisterPayload adalah data yang kita harapkan dari request pendaftaran
@@ -22,9 +24,9 @@ func NewUserHandler(service *UserService) *UserHandler {
 	return &UserHandler{service: service}
 }
 
-// GetUserProfileHandler menangani request untuk mendapatkan profil user
 func (h *UserHandler) GetUserProfileHandler(w http.ResponseWriter, r *http.Request) {
-	username := r.PathValue("username")
+	vars := mux.Vars(r)
+	username := vars["username"]
 	if username == "" {
 		http.Error(w, "Username is required", http.StatusBadRequest)
 		return
@@ -100,10 +102,10 @@ func (h *UserHandler) UpdateUserProfileHandler(w http.ResponseWriter, r *http.Re
 	json.NewEncoder(w).Encode(updatedUser)
 }
 
-// FollowUserHandler menangani permintaan untuk mengikuti user
 func (h *UserHandler) FollowUserHandler(w http.ResponseWriter, r *http.Request) {
 	currentUserID := r.Context().Value("userID").(int64)
-	targetUsername := r.PathValue("username")
+	vars := mux.Vars(r)
+	targetUsername := vars["username"]
 
 	// Dapatkan ID user yang akan di-follow
 	targetUser, err := h.service.GetUserProfile(targetUsername, 0) // currentUserID bisa 0 karena tidak relevan di sini
@@ -125,7 +127,8 @@ func (h *UserHandler) FollowUserHandler(w http.ResponseWriter, r *http.Request) 
 
 func (h *UserHandler) UnfollowUserHandler(w http.ResponseWriter, r *http.Request) {
 	currentUserID := r.Context().Value("userID").(int64)
-	targetUsername := r.PathValue("username")
+	vars := mux.Vars(r)
+	targetUsername := vars["username"]
 
 	targetUser, err := h.service.GetUserProfile(targetUsername, 0)
 	if err != nil {

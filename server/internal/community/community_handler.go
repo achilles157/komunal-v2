@@ -3,6 +3,8 @@ package community
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type CreateCommunityPayload struct {
@@ -44,7 +46,8 @@ func (h *CommunityHandler) CreateCommunityHandler(w http.ResponseWriter, r *http
 
 // GetCommunityHandler menangani permintaan untuk detail komunitas
 func (h *CommunityHandler) GetCommunityHandler(w http.ResponseWriter, r *http.Request) {
-	name := r.PathValue("name")
+	vars := mux.Vars(r)
+	name := vars["name"]
 
 	communityDetails, err := h.service.GetCommunityDetails(name)
 	if err != nil {
@@ -67,7 +70,8 @@ func (h *CommunityHandler) JoinCommunityHandler(w http.ResponseWriter, r *http.R
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	communityName := r.PathValue("name")
+	vars := mux.Vars(r)
+	communityName := vars["name"]
 
 	// Kita perlu mendapatkan ID komunitas dari namanya
 	community, err := h.service.GetCommunityDetails(communityName) // Kita bisa buat service yang lebih ringan nanti
@@ -93,7 +97,8 @@ func (h *CommunityHandler) LeaveCommunityHandler(w http.ResponseWriter, r *http.
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	communityName := r.PathValue("name")
+	vars := mux.Vars(r)
+	communityName := vars["name"]
 
 	community, err := h.service.GetCommunityDetails(communityName)
 	if err != nil {

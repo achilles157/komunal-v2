@@ -10,6 +10,8 @@ import (
 	"komunal/server/internal/middleware"
 	"komunal/server/internal/post"
 	"komunal/server/internal/user"
+
+	"github.com/gorilla/mux" // Import gorilla/mux
 )
 
 // Server adalah struct untuk server HTTP kita
@@ -17,43 +19,26 @@ type Server struct {
 	server *http.Server
 }
 
-// NewServer membuat dan mengkonfigurasi server baru
+// NewServer membuat dan mengkonfigurasi server baru menggunakan gorilla/mux
 func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.AuthHandler, postHandler *post.PostHandler, communityHandler *community.CommunityHandler) *Server {
-	mux := http.NewServeMux()
+	// Gunakan mux.NewRouter() sebagai ganti http.NewServeMux()
+	router := mux.NewRouter()
+	apiRouter := router.PathPrefix("/api").Subrouter() // Grup semua route di bawah /api
 
 	// --- Rute Publik ---
-	mux.HandleFunc("/api/register", userHandler.Register)
-	mux.HandleFunc("/api/login", authHandler.Login)
-	mux.HandleFunc("/api/posts", postHandler.GetPostsHandler)
-
-	// ROUTE HALAMAN DETAIL KOMUNITAS (PUBLIK)
-	mux.HandleFunc("GET /api/communities/{name}", communityHandler.GetCommunityHandler)
-
-	// ROUTE UNTUK PROFIL PENGGUNA
-	mux.HandleFunc("GET /api/users/{username}", userHandler.GetUserProfileHandler)
-
-	// ROUTE UNTUK POSTINGAN PENGGUNA
-	mux.HandleFunc("GET /api/users/{username}/posts", postHandler.GetPostsByUsernameHandler)
+	apiRouter.HandleFunc("/register", userHandler.Register).Methods("POST")
+	apiRouter.HandleFunc("/login", authHandler.Login).Methods("POST")
+	apiRouter.HandleFunc("/posts", postHandler.GetPostsHandler).Methods("GET")
+	apiRouter.HandleFunc("/communities/{name}", communityHandler.GetCommunityHandler).Methods("GET")
+	apiRouter.HandleFunc("/users/{username}", userHandler.GetUserProfileHandler).Methods("GET")
+	apiRouter.HandleFunc("/users/{username}/posts", postHandler.GetPostsByUsernameHandler).Methods("GET")
 
 	// --- Rute Terproteksi ---
+	// Buat subrouter baru yang akan menggunakan middleware
+	protectedRouter := apiRouter.PathPrefix("").Subrouter()
+	protectedRouter.Use(middleware.JWTAuthentication) // Terapkan middleware ke grup ini
 
-	// ROUTE UNTUK UPDATE PROFIL (TERPROTEKSI)
-	mux.Handle("PUT /api/profile", middleware.JWTAuthentication(http.HandlerFunc(userHandler.UpdateUserProfileHandler)))
-
-	// ROUTE UNTUK MEMBUAT KOMUNITAS (TERPROTEKSI)
-	mux.Handle("POST /api/communities", middleware.JWTAuthentication(http.HandlerFunc(communityHandler.CreateCommunityHandler)))
-
-	mux.Handle("POST /api/users/{username}/follow", middleware.JWTAuthentication(http.HandlerFunc(userHandler.FollowUserHandler)))
-
-	// ROUTE UNTUK LIKE & UNLIKE (TERPROTEKSI)
-	mux.Handle("POST /api/posts/{postId}/like", middleware.JWTAuthentication(http.HandlerFunc(postHandler.LikePostHandler)))
-	mux.Handle("DELETE /api/posts/{postId}/like", middleware.JWTAuthentication(http.HandlerFunc(postHandler.UnlikePostHandler)))
-
-	// ROUTE UNTUK GABUNG & TINGGALKAN KOMUNITAS (TERPROTEKSI)
-	mux.Handle("POST /api/communities/{name}/join", middleware.JWTAuthentication(http.HandlerFunc(communityHandler.JoinCommunityHandler)))
-	mux.Handle("DELETE /api/communities/{name}/join", middleware.JWTAuthentication(http.HandlerFunc(communityHandler.LeaveCommunityHandler)))
-
-	// Definisikan handler untuk profil
+	// Definisikan handler untuk profil pribadi
 	profileHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID := r.Context().Value("userID").(int64)
 		username := r.Context().Value("username").(string)
@@ -65,17 +50,27 @@ func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.Aut
 			"username": username,
 		})
 	})
+	protectedRouter.HandleFunc("/profile", profileHandler).Methods("GET")
+	protectedRouter.HandleFunc("/profile", userHandler.UpdateUserProfileHandler).Methods("PUT")
 
-	// Terapkan middleware ke profileHandler
-	mux.Handle("/api/profile", middleware.JWTAuthentication(profileHandler))
+	// Rute Postingan
+	protectedRouter.HandleFunc("/posts/create", postHandler.CreatePostHandler).Methods("POST")
+	protectedRouter.HandleFunc("/posts/{postId}/like", postHandler.LikePostHandler).Methods("POST")
+	protectedRouter.HandleFunc("/posts/{postId}/like", postHandler.UnlikePostHandler).Methods("DELETE")
 
-	// Terapkan middleware ke handler pembuatan post
-	mux.Handle("/api/posts/create", middleware.JWTAuthentication(http.HandlerFunc(postHandler.CreatePostHandler)))
+	// Rute Komunitas
+	protectedRouter.HandleFunc("/communities", communityHandler.CreateCommunityHandler).Methods("POST")
+	protectedRouter.HandleFunc("/communities/{name}/join", communityHandler.JoinCommunityHandler).Methods("POST")
+	protectedRouter.HandleFunc("/communities/{name}/join", communityHandler.LeaveCommunityHandler).Methods("DELETE")
+
+	// Rute Follow
+	protectedRouter.HandleFunc("/users/{username}/follow", userHandler.FollowUserHandler).Methods("POST")
+	protectedRouter.HandleFunc("/users/{username}/follow", userHandler.UnfollowUserHandler).Methods("DELETE")
 
 	return &Server{
 		server: &http.Server{
 			Addr:         ":" + port,
-			Handler:      mux, // Gunakan mux yang sudah diisi rute
+			Handler:      router, // Gunakan gorilla/mux router
 			ReadTimeout:  5 * time.Second,
 			WriteTimeout: 10 * time.Second,
 			IdleTimeout:  120 * time.Second,
