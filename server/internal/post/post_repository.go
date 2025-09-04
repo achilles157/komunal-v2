@@ -92,13 +92,18 @@ func (r *PostRepository) FindByUsername(username string) ([]PostResponse, error)
 	return posts, nil
 }
 
-func (r *PostRepository) LikePost(userID, postID int64) error {
-	query := `INSERT INTO post_likes (user_id, post_id) VALUES ($1, $2)`
+// LikePost menambahkan relasi 'suka' ke database, mengabaikan jika sudah ada
+func (r *PostRepository) LikePost(userID int64, postID int64) error {
+	// "ON CONFLICT DO NOTHING" adalah kunci perbaikannya.
+	// Ini memberitahu PostgreSQL untuk tidak melakukan apa-apa jika data sudah ada,
+	// dan tidak mengembalikan error.
+	query := `INSERT INTO post_likes (user_id, post_id) VALUES ($1, $2) ON CONFLICT (user_id, post_id) DO NOTHING`
 	_, err := r.db.Exec(query, userID, postID)
 	return err
 }
 
-func (r *PostRepository) UnlikePost(userID, postID int64) error {
+// UnlikePost menghapus relasi 'suka' dari database
+func (r *PostRepository) UnlikePost(userID int64, postID int64) error {
 	query := `DELETE FROM post_likes WHERE user_id = $1 AND post_id = $2`
 	_, err := r.db.Exec(query, userID, postID)
 	return err

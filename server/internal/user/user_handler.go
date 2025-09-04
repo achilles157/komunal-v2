@@ -116,8 +116,30 @@ func (h *UserHandler) FollowUserHandler(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// PERBAIKAN: Kirim response JSON
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "User followed successfully"})
 }
 
-// UnfollowUserHandler menangani permintaan untuk berhenti mengikuti user
-// (Mirip dengan FollowUserHandler, tetapi memanggil service.UnfollowUser)
+func (h *UserHandler) UnfollowUserHandler(w http.ResponseWriter, r *http.Request) {
+	currentUserID := r.Context().Value("userID").(int64)
+	targetUsername := r.PathValue("username")
+
+	targetUser, err := h.service.GetUserProfile(targetUsername, 0)
+	if err != nil {
+		http.Error(w, "User to unfollow not found", http.StatusNotFound)
+		return
+	}
+
+	if err := h.service.UnfollowUser(currentUserID, targetUser.ID); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// PERBAIKAN: Kirim response JSON
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "User unfollowed successfully"})
+}

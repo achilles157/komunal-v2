@@ -90,7 +90,10 @@ func (h *PostHandler) LikePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// PERBAIKAN: Kirim response JSON, bukan hanya status
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Post liked successfully"})
 }
 
 // UnlikePostHandler menangani permintaan untuk batal menyukai sebuah postingan
@@ -109,5 +112,8 @@ func (h *PostHandler) UnlikePostHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// PERBAIKAN: Kirim response JSON, bukan hanya status
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Post unliked successfully"})
 }

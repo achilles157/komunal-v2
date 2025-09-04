@@ -26,11 +26,16 @@ func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.Aut
 	mux.HandleFunc("/api/login", authHandler.Login)
 	mux.HandleFunc("/api/posts", postHandler.GetPostsHandler)
 
+	// ROUTE HALAMAN DETAIL KOMUNITAS (PUBLIK)
+	mux.HandleFunc("GET /api/communities/{name}", communityHandler.GetCommunityHandler)
+
 	// ROUTE UNTUK PROFIL PENGGUNA
 	mux.HandleFunc("GET /api/users/{username}", userHandler.GetUserProfileHandler)
 
 	// ROUTE UNTUK POSTINGAN PENGGUNA
 	mux.HandleFunc("GET /api/users/{username}/posts", postHandler.GetPostsByUsernameHandler)
+
+	// --- Rute Terproteksi ---
 
 	// ROUTE UNTUK UPDATE PROFIL (TERPROTEKSI)
 	mux.Handle("PUT /api/profile", middleware.JWTAuthentication(http.HandlerFunc(userHandler.UpdateUserProfileHandler)))
@@ -44,7 +49,9 @@ func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.Aut
 	mux.Handle("POST /api/posts/{postId}/like", middleware.JWTAuthentication(http.HandlerFunc(postHandler.LikePostHandler)))
 	mux.Handle("DELETE /api/posts/{postId}/like", middleware.JWTAuthentication(http.HandlerFunc(postHandler.UnlikePostHandler)))
 
-	// --- Rute Terproteksi ---
+	// ROUTE UNTUK GABUNG & TINGGALKAN KOMUNITAS (TERPROTEKSI)
+	mux.Handle("POST /api/communities/{name}/join", middleware.JWTAuthentication(http.HandlerFunc(communityHandler.JoinCommunityHandler)))
+	mux.Handle("DELETE /api/communities/{name}/join", middleware.JWTAuthentication(http.HandlerFunc(communityHandler.LeaveCommunityHandler)))
 
 	// Definisikan handler untuk profil
 	profileHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
