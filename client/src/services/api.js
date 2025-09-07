@@ -123,3 +123,11 @@ export const leaveCommunity = async (name, token) => {
   });
   return handleResponse(response);
 };
+
+// Service untuk mengambil komunitas milik pengguna yang login
+export const getUserCommunities = async (token) => {
+  const response = await fetch(`${BASE_URL}/user/communities`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};

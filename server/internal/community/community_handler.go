@@ -114,3 +114,21 @@ func (h *CommunityHandler) LeaveCommunityHandler(w http.ResponseWriter, r *http.
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Successfully left community"})
 }
+
+// GetUserCommunitiesHandler menangani permintaan untuk mengambil komunitas milik user
+func (h *CommunityHandler) GetUserCommunitiesHandler(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value("userID").(int64)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	communities, err := h.service.GetUserCommunities(userID)
+	if err != nil {
+		http.Error(w, "Failed to retrieve user communities", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(communities)
+}

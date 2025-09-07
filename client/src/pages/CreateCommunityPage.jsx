@@ -18,8 +18,8 @@ const CreateCommunityPage = () => {
     try {
       const newCommunity = await createCommunity({ name, description }, token);
       alert(`Komunitas "${newCommunity.name}" berhasil dibuat!`);
-      // Arahkan ke halaman komunitas baru (fitur selanjutnya)
-      navigate(`/`); 
+      // Arahkan ke halaman komunitas baru menggunakan slug dari response API
+      navigate(`/c/${newCommunity.slug}`); 
     } catch (err) {
       setError(err.message);
     } finally {

@@ -15,35 +15,32 @@ func NewCommunityRepository(db *sql.DB) *CommunityRepository {
 
 // CreateWithAdminTransaction membuat komunitas baru dan menambahkan kreator sebagai admin dalam satu transaksi
 func (r *CommunityRepository) CreateWithAdminTransaction(community *Community) error {
-	// Memulai transaksi
 	tx, err := r.db.Begin()
 	if err != nil {
 		return err
 	}
 
-	// 1. Masukkan data ke tabel 'communities'
-	communityQuery := `INSERT INTO communities (name, description, creator_id, created_at)
-                       VALUES ($1, $2, $3, $4)
+	communityQuery := `INSERT INTO communities (name, slug, description, creator_id, created_at)
+                       VALUES ($1, $2, $3, $4, $5)
                        RETURNING id, created_at`
 
-	now := time.Now()
+	now := time.Now() // Definisikan 'now' sekali di sini
 	err = tx.QueryRow(communityQuery, community.Name, community.Description, community.CreatorID, now).Scan(&community.ID, &community.CreatedAt)
 	if err != nil {
-		tx.Rollback() // Batalkan transaksi jika gagal
+		tx.Rollback()
 		return err
 	}
 
-	// 2. Masukkan kreator sebagai admin di 'community_members'
 	memberQuery := `INSERT INTO community_members (user_id, community_id, role, joined_at)
                      VALUES ($1, $2, $3, $4)`
 
+	// Gunakan variabel 'now' yang sama untuk konsistensi
 	_, err = tx.Exec(memberQuery, community.CreatorID, community.ID, "admin", now)
 	if err != nil {
-		tx.Rollback() // Batalkan transaksi jika gagal
+		tx.Rollback()
 		return err
 	}
 
-	// Jika semua berhasil, commit transaksi
 	return tx.Commit()
 }
 
@@ -100,4 +97,33 @@ func (r *CommunityRepository) LeaveCommunity(userID int64, communityID int) erro
 	query := `DELETE FROM community_members WHERE user_id = $1 AND community_id = $2`
 	_, err := r.db.Exec(query, userID, communityID)
 	return err
+}
+
+// FindByUserID mengambil semua komunitas di mana seorang pengguna adalah anggota
+func (r *CommunityRepository) FindByUserID(userID int64) ([]Community, error) {
+	query := `
+		SELECT c.id, c.name, c.slug, c.description, c.creator_id, c.created_at
+		FROM communities c
+		JOIN community_members cm ON c.id = cm.community_id
+		WHERE cm.user_id = $1`
+
+	rows, err := r.db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var communities []Community
+	for rows.Next() {
+		var community Community
+		var slug sql.NullString // Menangani slug yang bisa NULL
+		if err := rows.Scan(&community.ID, &community.Name, &slug, &community.Description, &community.CreatorID, &community.CreatedAt); err != nil {
+			return nil, err
+		}
+		if slug.Valid {
+			community.Slug = slug.String
+		}
+		communities = append(communities, community)
+	}
+	return communities, nil
 }

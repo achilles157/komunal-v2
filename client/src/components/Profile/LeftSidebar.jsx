@@ -1,6 +1,7 @@
-import React from 'react';
-import { NavLink, Link } from 'react-router-dom'; 
+import React, { useState, useEffect } from 'react'; // Import useState & useEffect
+import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { getUserCommunities } from '../../services/api'; // Import service baru
 import { FiHome, FiCompass, FiShoppingBag } from 'react-icons/fi';
 import './Profile.css';
 
@@ -28,6 +29,20 @@ const LeftSidebar = () => {
          <Link to="/new/community" className="create-community-button">
             Buat Komunitas
          </Link>
+      )}
+
+      {isAuthenticated && myCommunities.length > 0 && (
+        <div className="card my-communities-card">
+          <h4 className="my-communities-title">Komunitas Saya</h4>
+          <div className="my-communities-list">
+            {myCommunities.map(community => (
+              <Link to={`/c/${community.slug || community.name}`} key={community.id} className="community-item">
+                <img src={`https://api.dicebear.com/8.x/initials/svg?seed=${community.name}`} alt="Avatar" />
+                <span>{community.name}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
       )}
 
       <div className="card nav-card">

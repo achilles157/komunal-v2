@@ -67,6 +67,9 @@ func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.Aut
 	protectedRouter.HandleFunc("/users/{username}/follow", userHandler.FollowUserHandler).Methods("POST")
 	protectedRouter.HandleFunc("/users/{username}/follow", userHandler.UnfollowUserHandler).Methods("DELETE")
 
+	// ROUTE UNTUK MENGAMBIL KOMUNITAS MILIK PENGGUNA
+	protectedRouter.HandleFunc("/user/communities", communityHandler.GetUserCommunitiesHandler).Methods("GET")
+
 	return &Server{
 		server: &http.Server{
 			Addr:         ":" + port,
