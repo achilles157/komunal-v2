@@ -6,7 +6,19 @@ import { FiHome, FiCompass, FiShoppingBag } from 'react-icons/fi';
 import './Profile.css';
 
 const LeftSidebar = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, token } = useAuth();
+  const [myCommunities, setMyCommunities] = useState([]);
+
+  useEffect(() => {
+    // Ambil data komunitas hanya jika pengguna sudah login
+    if (isAuthenticated && token) {
+      getUserCommunities(token)
+        .then(data => {
+          setMyCommunities(data || []);
+        })
+        .catch(console.error);
+    }
+  }, [isAuthenticated, token]); // Jalankan ulang jika status login berubah
 
   return (
     <aside className="left-sidebar-container">
