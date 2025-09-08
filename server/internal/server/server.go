@@ -11,7 +11,8 @@ import (
 	"komunal/server/internal/post"
 	"komunal/server/internal/user"
 
-	"github.com/gorilla/mux" // Import gorilla/mux
+	"github.com/gorilla/handlers" // 1. Import gorilla/handlers
+	"github.com/gorilla/mux"
 )
 
 // Server adalah struct untuk server HTTP kita
@@ -21,9 +22,8 @@ type Server struct {
 
 // NewServer membuat dan mengkonfigurasi server baru menggunakan gorilla/mux
 func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.AuthHandler, postHandler *post.PostHandler, communityHandler *community.CommunityHandler) *Server {
-	// Gunakan mux.NewRouter() sebagai ganti http.NewServeMux()
 	router := mux.NewRouter()
-	apiRouter := router.PathPrefix("/api").Subrouter() // Grup semua route di bawah /api
+	apiRouter := router.PathPrefix("/api").Subrouter()
 
 	// --- Rute Publik ---
 	apiRouter.HandleFunc("/register", userHandler.Register).Methods("POST")
@@ -50,30 +50,38 @@ func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.Aut
 			"username": username,
 		})
 	})
-	protectedRouter.HandleFunc("/profile", profileHandler).Methods("GET")
-	protectedRouter.HandleFunc("/profile", userHandler.UpdateUserProfileHandler).Methods("PUT")
+	// PERBAIKAN: Gunakan router.Handle() untuk setiap rute terproteksi dan bungkus dengan middleware
+	apiRouter.Handle("/profile", middleware.JWTAuthentication(profileHandler)).Methods("GET")
+	apiRouter.Handle("/profile", middleware.JWTAuthentication(http.HandlerFunc(userHandler.UpdateUserProfileHandler))).Methods("PUT")
 
-	// Rute Postingan
-	protectedRouter.HandleFunc("/posts/create", postHandler.CreatePostHandler).Methods("POST")
-	protectedRouter.HandleFunc("/posts/{postId}/like", postHandler.LikePostHandler).Methods("POST")
-	protectedRouter.HandleFunc("/posts/{postId}/like", postHandler.UnlikePostHandler).Methods("DELETE")
+	// Rute Postingan Terproteksi
+	apiRouter.Handle("/posts/create", middleware.JWTAuthentication(http.HandlerFunc(postHandler.CreatePostHandler))).Methods("POST")
+	apiRouter.Handle("/posts/{postId}/like", middleware.JWTAuthentication(http.HandlerFunc(postHandler.LikePostHandler))).Methods("POST")
+	apiRouter.Handle("/posts/{postId}/like", middleware.JWTAuthentication(http.HandlerFunc(postHandler.UnlikePostHandler))).Methods("DELETE")
 
-	// Rute Komunitas
-	protectedRouter.HandleFunc("/communities", communityHandler.CreateCommunityHandler).Methods("POST")
-	protectedRouter.HandleFunc("/communities/{name}/join", communityHandler.JoinCommunityHandler).Methods("POST")
-	protectedRouter.HandleFunc("/communities/{name}/join", communityHandler.LeaveCommunityHandler).Methods("DELETE")
+	// Rute Komunitas Terproteksi
+	apiRouter.Handle("/communities", middleware.JWTAuthentication(http.HandlerFunc(communityHandler.CreateCommunityHandler))).Methods("POST")
+	apiRouter.Handle("/communities/{name}/join", middleware.JWTAuthentication(http.HandlerFunc(communityHandler.JoinCommunityHandler))).Methods("POST")
+	apiRouter.Handle("/communities/{name}/join", middleware.JWTAuthentication(http.HandlerFunc(communityHandler.LeaveCommunityHandler))).Methods("DELETE")
+	apiRouter.Handle("/user/communities", middleware.JWTAuthentication(http.HandlerFunc(communityHandler.GetUserCommunitiesHandler))).Methods("GET")
 
-	// Rute Follow
-	protectedRouter.HandleFunc("/users/{username}/follow", userHandler.FollowUserHandler).Methods("POST")
-	protectedRouter.HandleFunc("/users/{username}/follow", userHandler.UnfollowUserHandler).Methods("DELETE")
+	// Rute Follow Terproteksi
+	apiRouter.Handle("/users/{username}/follow", middleware.JWTAuthentication(http.HandlerFunc(userHandler.FollowUserHandler))).Methods("POST")
+	apiRouter.Handle("/users/{username}/follow", middleware.JWTAuthentication(http.HandlerFunc(userHandler.UnfollowUserHandler))).Methods("DELETE")
 
-	// ROUTE UNTUK MENGAMBIL KOMUNITAS MILIK PENGGUNA
-	protectedRouter.HandleFunc("/user/communities", communityHandler.GetUserCommunitiesHandler).Methods("GET")
+	// --- Konfigurasi CORS ---
+	// 2. Definisikan dari mana saja request diizinkan
+	allowedOrigins := handlers.AllowedOrigins([]string{"http://localhost:5173"}) // Ganti port jika frontend Anda berbeda
+	// 3. Definisikan header apa saja yang diizinkan
+	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	// 4. Definisikan metode HTTP apa saja yang diizinkan
+	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
 
 	return &Server{
 		server: &http.Server{
-			Addr:         ":" + port,
-			Handler:      router, // Gunakan gorilla/mux router
+			Addr: ":" + port,
+			// 5. Bungkus router utama dengan CORS handler
+			Handler:      handlers.CORS(allowedOrigins, allowedHeaders, allowedMethods)(router),
 			ReadTimeout:  5 * time.Second,
 			WriteTimeout: 10 * time.Second,
 			IdleTimeout:  120 * time.Second,

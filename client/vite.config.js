@@ -10,7 +10,7 @@ export default defineConfig({
       // Setiap permintaan yang dimulai dengan /api
       // akan diteruskan ke server backend Anda
       '/api': {
-        target: 'https://komunal-v2-production.up.railway.app/', // Sesuaikan port jika backend Anda berbeda
+        target: 'http://localhost:8080/', // Sesuaikan port jika backend Anda berbeda
         changeOrigin: true,
       },
     },
