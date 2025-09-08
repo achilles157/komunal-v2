@@ -69,19 +69,20 @@ func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.Aut
 	apiRouter.Handle("/users/{username}/follow", middleware.JWTAuthentication(http.HandlerFunc(userHandler.FollowUserHandler))).Methods("POST")
 	apiRouter.Handle("/users/{username}/follow", middleware.JWTAuthentication(http.HandlerFunc(userHandler.UnfollowUserHandler))).Methods("DELETE")
 
-	// --- Konfigurasi CORS ---
-	// 2. Definisikan dari mana saja request diizinkan
-	allowedOrigins := handlers.AllowedOrigins([]string{"http://localhost:5173"}) // Ganti port jika frontend Anda berbeda
-	// 3. Definisikan header apa saja yang diizinkan
-	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
-	// 4. Definisikan metode HTTP apa saja yang diizinkan
-	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
+	// --- Konfigurasi CORS yang Disempurnakan ---
+	corsHandler := handlers.CORS(
+		handlers.AllowedOrigins([]string{"http://localhost:5173"}), // Ganti dengan domain production Anda nanti
+		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
+		// INI BAGIAN PENTING: Secara eksplisit izinkan header Authorization
+		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
+		handlers.AllowCredentials(),
+	)
 
 	return &Server{
 		server: &http.Server{
 			Addr: ":" + port,
-			// 5. Bungkus router utama dengan CORS handler
-			Handler:      handlers.CORS(allowedOrigins, allowedHeaders, allowedMethods)(router),
+			// Bungkus router utama dengan CORS handler
+			Handler:      corsHandler(router),
 			ReadTimeout:  5 * time.Second,
 			WriteTimeout: 10 * time.Second,
 			IdleTimeout:  120 * time.Second,
