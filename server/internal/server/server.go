@@ -11,7 +11,7 @@ import (
 	"komunal/server/internal/post"
 	"komunal/server/internal/user"
 
-	"github.com/gorilla/handlers" // 1. Import gorilla/handlers
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -25,14 +25,14 @@ func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.Aut
 	router := mux.NewRouter()
 	apiRouter := router.PathPrefix("/api").Subrouter()
 
-	// --- Rute Publik ---
+	// --- Rute Pendaftaran & Login ---
 	apiRouter.HandleFunc("/register", userHandler.Register).Methods("POST")
 	apiRouter.HandleFunc("/login", authHandler.Login).Methods("POST")
+	// --- Rute Postingan Publik ---
 	apiRouter.HandleFunc("/posts", postHandler.GetPostsHandler).Methods("GET")
-	apiRouter.HandleFunc("/communities/{name}", communityHandler.GetCommunityHandler).Methods("GET")
+	// --- Rute Pengguna & Profil ---
 	apiRouter.HandleFunc("/users/{username}", userHandler.GetUserProfileHandler).Methods("GET")
 	apiRouter.HandleFunc("/users/{username}/posts", postHandler.GetPostsByUsernameHandler).Methods("GET")
-
 	// --- Rute Terproteksi ---
 	// Buat subrouter baru yang akan menggunakan middleware
 	protectedRouter := apiRouter.PathPrefix("").Subrouter()
@@ -68,6 +68,11 @@ func NewServer(port string, userHandler *user.UserHandler, authHandler *auth.Aut
 	// Rute Follow Terproteksi
 	apiRouter.Handle("/users/{username}/follow", middleware.JWTAuthentication(http.HandlerFunc(userHandler.FollowUserHandler))).Methods("POST")
 	apiRouter.Handle("/users/{username}/follow", middleware.JWTAuthentication(http.HandlerFunc(userHandler.UnfollowUserHandler))).Methods("DELETE")
+
+	// --- Rute Komunitas (Publik & Terproteksi Digabung) ---
+	// Menangani GET (publik) dan DELETE (terproteksi) untuk path yang sama
+	apiRouter.HandleFunc("/communities/{name}", communityHandler.GetCommunityHandler).Methods("GET")
+	apiRouter.Handle("/communities/{name}", middleware.JWTAuthentication(http.HandlerFunc(communityHandler.DeleteCommunityHandler))).Methods("DELETE")
 
 	// --- Konfigurasi CORS yang Disempurnakan ---
 	corsHandler := handlers.CORS(

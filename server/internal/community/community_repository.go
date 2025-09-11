@@ -2,6 +2,7 @@ package community
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 )
 
@@ -20,12 +21,14 @@ func (r *CommunityRepository) CreateWithAdminTransaction(community *Community) e
 		return err
 	}
 
+	// Query sekarang menyertakan 'slug'
 	communityQuery := `INSERT INTO communities (name, slug, description, creator_id, created_at)
                        VALUES ($1, $2, $3, $4, $5)
                        RETURNING id, created_at`
 
-	now := time.Now() // Definisikan 'now' sekali di sini
-	err = tx.QueryRow(communityQuery, community.Name, community.Description, community.CreatorID, now).Scan(&community.ID, &community.CreatedAt)
+	now := time.Now()
+	// Pastikan community.Slug ada di sini
+	err = tx.QueryRow(communityQuery, community.Name, community.Slug, community.Description, community.CreatorID, now).Scan(&community.ID, &community.CreatedAt)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -34,7 +37,6 @@ func (r *CommunityRepository) CreateWithAdminTransaction(community *Community) e
 	memberQuery := `INSERT INTO community_members (user_id, community_id, role, joined_at)
                      VALUES ($1, $2, $3, $4)`
 
-	// Gunakan variabel 'now' yang sama untuk konsistensi
 	_, err = tx.Exec(memberQuery, community.CreatorID, community.ID, "admin", now)
 	if err != nil {
 		tx.Rollback()
@@ -126,4 +128,26 @@ func (r *CommunityRepository) FindByUserID(userID int64) ([]Community, error) {
 		communities = append(communities, community)
 	}
 	return communities, nil
+}
+
+// Delete menghapus komunitas dari database, hanya jika user ID cocok dengan creator_id
+func (r *CommunityRepository) Delete(communityID int, userID int64) error {
+	// Query ini memastikan bahwa hanya kreator yang bisa menghapus.
+	query := `DELETE FROM communities WHERE id = $1 AND creator_id = $2`
+
+	result, err := r.db.Exec(query, communityID, userID)
+	if err != nil {
+		return err
+	}
+
+	// Cek apakah ada baris yang benar-benar terhapus
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errors.New("community not found or user is not the creator")
+	}
+
+	return nil
 }

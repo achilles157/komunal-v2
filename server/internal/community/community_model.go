@@ -6,7 +6,7 @@ import "time"
 type Community struct {
 	ID          int       `json:"id"`
 	Name        string    `json:"name"`
-	Slug        string    `json:"slug"` // Tambahkan field ini
+	Slug        string    `json:"slug"` // <-- TAMBAHKAN BARIS INI
 	Description string    `json:"description"`
 	CreatorID   int64     `json:"creatorId"`
 	CreatedAt   time.Time `json:"createdAt"`

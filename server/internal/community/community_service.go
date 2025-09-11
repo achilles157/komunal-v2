@@ -2,8 +2,8 @@ package community
 
 import (
 	"errors"
-	"regexp" // Import paket regex
-	"strings"
+	"regexp"  // <-- 1. Tambahkan import ini
+	"strings" // <-- 2. Tambahkan import ini
 )
 
 type CommunityService struct {
@@ -21,7 +21,7 @@ func (s *CommunityService) CreateCommunity(name, description string, creatorID i
 
 	community := &Community{
 		Name:        name,
-		Slug:        generateSlug(name), // Buat slug dari nama
+		Slug:        generateSlug(name), // <-- 3. Buat slug di sini
 		Description: description,
 		CreatorID:   creatorID,
 	}
@@ -74,12 +74,18 @@ func (s *CommunityService) LeaveCommunity(userID int64, communityID int) error {
 
 // Fungsi helper untuk membuat slug
 func generateSlug(name string) string {
-	// Ganti spasi dan karakter non-alfanumerik dengan strip
-	reg := regexp.MustCompile(`[^a-zA-Z0-9]+`)
+	// Ganti spasi dan karakter non-alfanumerik dengan tanda hubung
+	reg, _ := regexp.Compile("[^a-zA-Z0-9]+")
 	slug := reg.ReplaceAllString(strings.ToLower(name), "-")
 	return strings.Trim(slug, "-")
 }
 
 func (s *CommunityService) GetUserCommunities(userID int64) ([]Community, error) {
 	return s.repo.FindByUserID(userID)
+}
+
+// DeleteCommunity menangani logika untuk menghapus komunitas
+func (s *CommunityService) DeleteCommunity(communityID int, userID int64) error {
+	// Validasi tambahan bisa ditaruh di sini jika perlu
+	return s.repo.Delete(communityID, userID)
 }

@@ -131,3 +131,13 @@ export const getUserCommunities = async (token) => {
   });
   return handleResponse(response);
 };
+
+// Service untuk menghapus komunitas
+export const deleteCommunity = async (name, token) => {
+  // Pastikan URL menggunakan variabel 'name' dan tidak ada '/join'
+  const response = await fetch(`${BASE_URL}/communities/${name}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};

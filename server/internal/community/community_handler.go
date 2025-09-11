@@ -132,3 +132,31 @@ func (h *CommunityHandler) GetUserCommunitiesHandler(w http.ResponseWriter, r *h
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(communities)
 }
+
+// DeleteCommunityHandler menangani permintaan untuk menghapus komunitas
+func (h *CommunityHandler) DeleteCommunityHandler(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value("userID").(int64)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	communityName := r.PathValue("name")
+
+	// Dapatkan detail komunitas untuk mendapatkan ID-nya
+	community, err := h.service.GetCommunityDetails(communityName)
+	if err != nil {
+		http.Error(w, "Community not found", http.StatusNotFound)
+		return
+	}
+
+	// Service akan memvalidasi apakah userID adalah kreator
+	if err := h.service.DeleteCommunity(community.ID, userID); err != nil {
+		// Jika service mengembalikan error, kemungkinan user bukan kreator
+		http.Error(w, err.Error(), http.StatusForbidden) // 403 Forbidden
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Community successfully deleted"})
+}

@@ -83,6 +83,12 @@
   padding: 2rem;
 }
 
+.community-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 1rem;
+}
+
 .community-avatar {
   width: 100px;
   height: 100px;
@@ -117,6 +123,16 @@
   background-color: #efefef;
   color: #262626;
   border-color: #dbdbdb;
+}
+
+.join-button.danger {
+  background-color: #e74c3c;
+  border-color: #e74c3c;
+  color: #fff;
+}
+.join-button.danger:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
 }
 
 .community-body {

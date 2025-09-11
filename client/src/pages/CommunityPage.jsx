@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { useAuth } from '../contexts/AuthContext';
-import { getCommunityDetails, joinCommunity, leaveCommunity } from '../services/api';
-import '../components/Community/Community.css'; // Kita gunakan CSS yang sudah ada
+import { getCommunityDetails, joinCommunity, leaveCommunity, deleteCommunity } from '../services/api'; // Import delete
+import '../components/Community/Community.css';
 
 const CommunityPage = () => {
   const [community, setCommunity] = useState(null);
@@ -13,6 +13,7 @@ const CommunityPage = () => {
 
   const { communityName } = useParams();
   const { user, token, isAuthenticated } = useAuth();
+  const navigate = useNavigate(); // Hook untuk navigasi
 
   const fetchCommunityData = useCallback(async () => {
     try {
@@ -53,6 +54,23 @@ const CommunityPage = () => {
     }
   };
 
+  const isCreator = user && user.userId === community?.creatorId;
+
+    const handleDelete = async () => {
+      if (!isCreator) return;
+      
+      // Tampilkan konfirmasi sebelum menghapus
+      if (window.confirm(`Apakah Anda yakin ingin menghapus komunitas "${community.name}"? Aksi ini tidak bisa dibatalkan.`)) {
+        try {
+          await deleteCommunity(community.name, token);
+          alert('Komunitas berhasil dihapus.');
+          navigate('/'); // Arahkan ke homepage setelah berhasil
+        } catch (err) {
+          alert(`Gagal menghapus komunitas: ${err.message}`);
+        }
+      }
+    };
+
   if (loading) return <div className="app-content"><p>Loading community...</p></div>;
   if (error) return <div className="app-content"><p style={{ color: 'red' }}>Error: {error}</p></div>;
   if (!community) return null;
@@ -66,9 +84,16 @@ const CommunityPage = () => {
           <p>{community.description}</p>
           <span>{memberCount} anggota</span>
         </div>
-        <button onClick={handleJoinToggle} className={`join-button ${isMember ? 'secondary' : 'primary'}`}>
-          {isMember ? 'Tinggalkan' : 'Gabung'}
-        </button>
+        <div className="community-actions">
+          {isCreator && (
+            <button onClick={handleDelete} className="join-button danger">
+              Hapus
+            </button>
+          )}
+          <button onClick={handleJoinToggle} className={`join-button ${isMember ? 'secondary' : 'primary'}`}>
+            {isMember ? 'Tinggalkan' : 'Gabung'}
+          </button>
+        </div>
       </div>
 
       <div className="community-body">
