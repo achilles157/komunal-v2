@@ -10,13 +10,14 @@ const CreateCommunityPage = () => {
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [slug, setSlug] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      const newCommunity = await createCommunity({ name, description }, token);
+      const newCommunity = await createCommunity({ name, slug, description }, token);
       alert(`Komunitas "${newCommunity.name}" berhasil dibuat!`);
       // Arahkan ke halaman komunitas baru menggunakan slug dari response API
       navigate(`/c/${newCommunity.slug}`); 
@@ -36,6 +37,16 @@ const CreateCommunityPage = () => {
         <div className="form-group">
           <label htmlFor="name">Nama Komunitas</label>
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+        </div>
+        <div className="form-group">
+          <label htmlFor="slug">Username Komunitas (@)</label>
+          <input 
+            type="text" 
+            value={slug} 
+            onChange={(e) => setSlug(e.target.value)} 
+            placeholder="contoh: seni-digital-indonesia"
+            required 
+          />
         </div>
         <div className="form-group">
           <label htmlFor="description">Deskripsi</label>

@@ -151,3 +151,11 @@ func (r *CommunityRepository) Delete(communityID int, userID int64) error {
 
 	return nil
 }
+
+// CheckSlugExists memeriksa apakah slug sudah digunakan
+func (r *CommunityRepository) CheckSlugExists(slug string) (bool, error) {
+	var exists bool
+	query := `SELECT EXISTS(SELECT 1 FROM communities WHERE slug = $1)`
+	err := r.db.QueryRow(query, slug).Scan(&exists)
+	return exists, err
+}

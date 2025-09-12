@@ -9,6 +9,7 @@ import (
 
 type CreateCommunityPayload struct {
 	Name        string `json:"name"`
+	Slug        string `json:"slug"` // Tambahkan slug
 	Description string `json:"description"`
 }
 
@@ -33,7 +34,7 @@ func (h *CommunityHandler) CreateCommunityHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	community, err := h.service.CreateCommunity(payload.Name, payload.Description, userID)
+	community, err := h.service.CreateCommunity(payload.Name, payload.Slug, payload.Description, userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

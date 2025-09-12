@@ -2,8 +2,7 @@ package community
 
 import (
 	"errors"
-	"regexp"  // <-- 1. Tambahkan import ini
-	"strings" // <-- 2. Tambahkan import ini
+	"regexp" // <-- 1. Tambahkan import ini
 )
 
 type CommunityService struct {
@@ -14,14 +13,29 @@ func NewCommunityService(repo *CommunityRepository) *CommunityService {
 	return &CommunityService{repo: repo}
 }
 
-func (s *CommunityService) CreateCommunity(name, description string, creatorID int64) (*Community, error) {
-	if name == "" {
-		return nil, errors.New("community name cannot be empty")
+func (s *CommunityService) CreateCommunity(name, slug, description string, creatorID int64) (*Community, error) {
+	if name == "" || slug == "" {
+		return nil, errors.New("community name and slug cannot be empty")
+	}
+
+	// Validasi format slug (hanya huruf kecil, angka, dan strip)
+	match, _ := regexp.MatchString("^[a-z0-9-]+$", slug)
+	if !match {
+		return nil, errors.New("community username can only contain lowercase letters, numbers, and hyphens")
+	}
+
+	// Cek keunikan slug
+	exists, err := s.repo.CheckSlugExists(slug)
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		return nil, errors.New("community username is already taken")
 	}
 
 	community := &Community{
 		Name:        name,
-		Slug:        generateSlug(name), // <-- 3. Buat slug di sini
+		Slug:        slug, // Gunakan slug dari input pengguna
 		Description: description,
 		CreatorID:   creatorID,
 	}
@@ -70,14 +84,6 @@ func (s *CommunityService) JoinCommunity(userID int64, communityID int) error {
 func (s *CommunityService) LeaveCommunity(userID int64, communityID int) error {
 	// Anda bisa menambahkan validasi, misalnya, kreator tidak bisa meninggalkan komunitasnya sendiri.
 	return s.repo.LeaveCommunity(userID, communityID)
-}
-
-// Fungsi helper untuk membuat slug
-func generateSlug(name string) string {
-	// Ganti spasi dan karakter non-alfanumerik dengan tanda hubung
-	reg, _ := regexp.Compile("[^a-zA-Z0-9]+")
-	slug := reg.ReplaceAllString(strings.ToLower(name), "-")
-	return strings.Trim(slug, "-")
 }
 
 func (s *CommunityService) GetUserCommunities(userID int64) ([]Community, error) {
