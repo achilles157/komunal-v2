@@ -44,10 +44,10 @@ func (h *CommunityHandler) CreateCommunityHandler(w http.ResponseWriter, r *http
 	json.NewEncoder(w).Encode(community)
 }
 
-// GetCommunityHandler menangani permintaan untuk detail komunitas
+// GetCommunityHandler
 func (h *CommunityHandler) GetCommunityHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	name := vars["name"]
+	vars := mux.Vars(r)  // Gunakan mux.Vars
+	name := vars["name"] // Ambil 'name' dari vars
 
 	communityDetails, err := h.service.GetCommunityDetails(name)
 	if err != nil {
@@ -70,7 +70,7 @@ func (h *CommunityHandler) JoinCommunityHandler(w http.ResponseWriter, r *http.R
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	vars := mux.Vars(r)
+	vars := mux.Vars(r) // Gunakan mux.Vars
 	communityName := vars["name"]
 
 	// Kita perlu mendapatkan ID komunitas dari namanya
@@ -140,7 +140,8 @@ func (h *CommunityHandler) DeleteCommunityHandler(w http.ResponseWriter, r *http
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	communityName := r.PathValue("name")
+	vars := mux.Vars(r) // Gunakan mux.Vars
+	communityName := vars["name"]
 
 	// Dapatkan detail komunitas untuk mendapatkan ID-nya
 	community, err := h.service.GetCommunityDetails(communityName)
